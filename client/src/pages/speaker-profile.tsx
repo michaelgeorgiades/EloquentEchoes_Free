@@ -12,13 +12,27 @@ import churchillImg from "@assets/generated_images/Winston_Churchill_portrait_11
 import kingImg from "@assets/generated_images/Martin_Luther_King_Jr_portrait_2f76e848.png";
 import elizabethImg from "@assets/generated_images/Queen_Elizabeth_I_portrait_3a1ba861.png";
 import gandhiImg from "@assets/generated_images/Mahatma_Gandhi_portrait_4c29b8fe.png";
+import mandelaImg from "@assets/generated_images/Nelson_Mandela_portrait_c6b8c0e6.png";
+import hitlerImg from "@assets/generated_images/Adolf_Hitler_portrait_a072d976.png";
+import wattsImg from "@assets/generated_images/Alan_Watts_portrait_81227d38.png";
+import fdrImg from "@assets/generated_images/Franklin_D_Roosevelt_portrait_a6db030b.png";
+import jfkImg from "@assets/generated_images/John_F_Kennedy_portrait_4e6219ad.png";
+import napoleonImg from "@assets/generated_images/Napoleon_Bonaparte_portrait_651b5f58.png";
+import malcolmxImg from "@assets/generated_images/Malcolm_X_portrait_6ac5cb31.png";
 
 const speakerImages: Record<string, string> = {
   lincoln: lincolnImg,
   churchill: churchillImg,
   king: kingImg,
   elizabeth: elizabethImg,
-  gandhi: gandhiImg
+  gandhi: gandhiImg,
+  mandela: mandelaImg,
+  hitler: hitlerImg,
+  watts: wattsImg,
+  fdr: fdrImg,
+  jfk: jfkImg,
+  napoleon: napoleonImg,
+  malcolmx: malcolmxImg
 };
 
 export default function SpeakerProfile() {
