@@ -1,13 +1,261 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { createPaypalOrder, capturePaypalOrder, loadPaypalDefault } from "./paypal";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // put application routes here
-  // prefix all routes with /api
+  // PayPal Routes (from PayPal integration blueprint)
+  app.get("/paypal/setup", async (req, res) => {
+    await loadPaypalDefault(req, res);
+  });
 
-  // use storage to perform CRUD operations on the storage interface
-  // e.g. storage.insertUser(user) or storage.getUserByUsername(username)
+  app.post("/paypal/order", async (req, res) => {
+    await createPaypalOrder(req, res);
+  });
+
+  app.post("/paypal/order/:orderID/capture", async (req, res) => {
+    await capturePaypalOrder(req, res);
+  });
+
+  // Shortened PayPal routes for PayPalButton component
+  app.get("/setup", async (req, res) => {
+    await loadPaypalDefault(req, res);
+  });
+
+  app.post("/order", async (req, res) => {
+    await createPaypalOrder(req, res);
+  });
+
+  app.post("/order/:orderID/capture", async (req, res) => {
+    await capturePaypalOrder(req, res);
+  });
+
+  // Speakers API
+  app.get("/api/speakers", async (req, res) => {
+    try {
+      const speakers = await storage.getSpeakers();
+      res.json(speakers);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch speakers" });
+    }
+  });
+
+  app.post("/api/speakers", async (req, res) => {
+    try {
+      const speaker = await storage.createSpeaker(req.body);
+      res.status(201).json(speaker);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create speaker" });
+    }
+  });
+
+  app.get("/api/speakers/:id", async (req, res) => {
+    try {
+      const speaker = await storage.getSpeaker(req.params.id);
+      if (!speaker) {
+        return res.status(404).json({ error: "Speaker not found" });
+      }
+      res.json(speaker);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch speaker" });
+    }
+  });
+
+  app.put("/api/speakers/:id", async (req, res) => {
+    try {
+      const updated = await storage.updateSpeaker(req.params.id, req.body);
+      if (!updated) {
+        return res.status(404).json({ error: "Speaker not found" });
+      }
+      res.json(updated);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update speaker" });
+    }
+  });
+
+  app.delete("/api/speakers/:id", async (req, res) => {
+    try {
+      const deleted = await storage.deleteSpeaker(req.params.id);
+      if (!deleted) {
+        return res.status(404).json({ error: "Speaker not found" });
+      }
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete speaker" });
+    }
+  });
+
+  // Categories API
+  app.get("/api/categories", async (req, res) => {
+    try {
+      const categories = await storage.getCategories();
+      res.json(categories);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch categories" });
+    }
+  });
+
+  app.post("/api/categories", async (req, res) => {
+    try {
+      const category = await storage.createCategory(req.body);
+      res.status(201).json(category);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create category" });
+    }
+  });
+
+  app.get("/api/categories/:id", async (req, res) => {
+    try {
+      const category = await storage.getCategory(req.params.id);
+      if (!category) {
+        return res.status(404).json({ error: "Category not found" });
+      }
+      res.json(category);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch category" });
+    }
+  });
+
+  app.put("/api/categories/:id", async (req, res) => {
+    try {
+      const updated = await storage.updateCategory(req.params.id, req.body);
+      if (!updated) {
+        return res.status(404).json({ error: "Category not found" });
+      }
+      res.json(updated);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update category" });
+    }
+  });
+
+  app.delete("/api/categories/:id", async (req, res) => {
+    try {
+      const deleted = await storage.deleteCategory(req.params.id);
+      if (!deleted) {
+        return res.status(404).json({ error: "Category not found" });
+      }
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete category" });
+    }
+  });
+
+  // Speeches API with filtering
+  app.get("/api/speeches", async (req, res) => {
+    try {
+      const filters = {
+        categoryId: req.query.categoryId as string | undefined,
+        speakerId: req.query.speakerId as string | undefined,
+        type: req.query.type as string | undefined,
+        search: req.query.search as string | undefined,
+      };
+      
+      const speeches = await storage.getSpeeches(filters);
+      res.json(speeches);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch speeches" });
+    }
+  });
+
+  app.post("/api/speeches", async (req, res) => {
+    try {
+      const speech = await storage.createSpeech(req.body);
+      res.status(201).json(speech);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create speech" });
+    }
+  });
+
+  app.get("/api/speeches/:id", async (req, res) => {
+    try {
+      const speech = await storage.getSpeech(req.params.id);
+      if (!speech) {
+        return res.status(404).json({ error: "Speech not found" });
+      }
+      res.json(speech);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch speech" });
+    }
+  });
+
+  app.put("/api/speeches/:id", async (req, res) => {
+    try {
+      const updated = await storage.updateSpeech(req.params.id, req.body);
+      if (!updated) {
+        return res.status(404).json({ error: "Speech not found" });
+      }
+      res.json(updated);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update speech" });
+    }
+  });
+
+  app.delete("/api/speeches/:id", async (req, res) => {
+    try {
+      const deleted = await storage.deleteSpeech(req.params.id);
+      if (!deleted) {
+        return res.status(404).json({ error: "Speech not found" });
+      }
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete speech" });
+    }
+  });
+
+  // Subscriptions API
+  app.get("/api/subscriptions", async (req, res) => {
+    try {
+      const subscriptions = await storage.getSubscriptions();
+      res.json(subscriptions);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch subscriptions" });
+    }
+  });
+
+  app.post("/api/subscriptions", async (req, res) => {
+    try {
+      const subscription = await storage.createSubscription(req.body);
+      res.status(201).json(subscription);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create subscription" });
+    }
+  });
+
+  app.get("/api/subscriptions/:id", async (req, res) => {
+    try {
+      const subscription = await storage.getSubscription(req.params.id);
+      if (!subscription) {
+        return res.status(404).json({ error: "Subscription not found" });
+      }
+      res.json(subscription);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch subscription" });
+    }
+  });
+
+  app.put("/api/subscriptions/:id", async (req, res) => {
+    try {
+      const updated = await storage.updateSubscription(req.params.id, req.body);
+      if (!updated) {
+        return res.status(404).json({ error: "Subscription not found" });
+      }
+      res.json(updated);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update subscription" });
+    }
+  });
+
+  app.delete("/api/subscriptions/:id", async (req, res) => {
+    try {
+      const deleted = await storage.deleteSubscription(req.params.id);
+      if (!deleted) {
+        return res.status(404).json({ error: "Subscription not found" });
+      }
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete subscription" });
+    }
+  });
 
   const httpServer = createServer(app);
 
