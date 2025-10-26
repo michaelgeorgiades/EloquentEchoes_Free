@@ -1,9 +1,19 @@
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Globe, Menu, X } from "lucide-react";
+import { Globe, Menu, X, User, LogOut } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useAuth } from "@/hooks/useAuth";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const languages = [
   { code: "en", name: "English" },
@@ -17,6 +27,7 @@ export default function Header() {
   const [location] = useLocation();
   const [selectedLanguage, setSelectedLanguage] = useState("en");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { isAuthenticated, isLoading, user } = useAuth();
 
   const navLinks = [
     { href: "/", label: "Home" },
@@ -54,9 +65,9 @@ export default function Header() {
             ))}
           </nav>
 
-          {/* Language Selector & Mobile Menu */}
+          {/* Language Selector, Auth & Mobile Menu */}
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
+            <div className="hidden md:flex items-center gap-2">
               <Globe className="h-4 w-4 text-muted-foreground" />
               <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
                 <SelectTrigger className="w-32" data-testid="select-language">
@@ -71,6 +82,47 @@ export default function Header() {
                 </SelectContent>
               </Select>
             </div>
+
+            {/* Auth Buttons */}
+            {!isLoading && (
+              isAuthenticated ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="rounded-full" data-testid="button-user-menu">
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src={user?.profileImageUrl || undefined} alt={user?.firstName || "User"} />
+                        <AvatarFallback>
+                          {user?.firstName?.charAt(0) || user?.email?.charAt(0) || "U"}
+                        </AvatarFallback>
+                      </Avatar>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>
+                      {user?.firstName && user?.lastName ? `${user.firstName} ${user.lastName}` : user?.email}
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <a href="/dashboard" data-testid="link-dashboard">
+                        <User className="mr-2 h-4 w-4" />
+                        Dashboard
+                      </a>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <a href="/api/logout" data-testid="link-logout">
+                        <LogOut className="mr-2 h-4 w-4" />
+                        Log Out
+                      </a>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <Button variant="default" asChild data-testid="button-login">
+                  <a href="/api/login">Log In</a>
+                </Button>
+              )
+            )}
 
             {/* Mobile Menu */}
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
