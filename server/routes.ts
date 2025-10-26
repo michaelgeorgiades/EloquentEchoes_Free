@@ -41,19 +41,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     await capturePaypalOrder(req, res);
   });
 
-  // Shortened PayPal routes for PayPalButton component
-  app.get("/setup", async (req, res) => {
-    await loadPaypalDefault(req, res);
-  });
-
-  app.post("/order", async (req, res) => {
-    await createPaypalOrder(req, res);
-  });
-
-  app.post("/order/:orderID/capture", async (req, res) => {
-    await capturePaypalOrder(req, res);
-  });
-
   // Speakers API
   app.get("/api/speakers", async (req, res) => {
     try {
@@ -278,6 +265,87 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: "Failed to delete subscription" });
+    }
+  });
+
+  // User Purchases API (require authentication)
+  app.get("/api/user/purchases", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const purchases = await storage.getUserPurchases(userId);
+      res.json(purchases);
+    } catch (error) {
+      console.error("Error fetching user purchases:", error);
+      res.status(500).json({ error: "Failed to fetch purchases" });
+    }
+  });
+
+  app.post("/api/user/purchases", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { speechId, price, paypalOrderId } = req.body;
+
+      if (!speechId || !price) {
+        return res.status(400).json({ error: "Speech ID and price are required" });
+      }
+
+      const purchase = await storage.createUserPurchase({
+        userId,
+        speechId,
+        price,
+        paypalOrderId,
+      });
+
+      res.status(201).json(purchase);
+    } catch (error) {
+      console.error("Error creating purchase:", error);
+      res.status(500).json({ error: "Failed to create purchase" });
+    }
+  });
+
+  app.get("/api/user/access/:speechId", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { speechId } = req.params;
+      const hasAccess = await storage.userHasAccessToSpeech(userId, speechId);
+      res.json({ hasAccess });
+    } catch (error) {
+      console.error("Error checking access:", error);
+      res.status(500).json({ error: "Failed to check access" });
+    }
+  });
+
+  // Subscribe to a subscription plan
+  app.post("/api/user/subscribe", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { subscriptionType, paypalOrderId } = req.body;
+
+      if (!subscriptionType) {
+        return res.status(400).json({ error: "Subscription type is required" });
+      }
+
+      // Calculate expiry date based on subscription type
+      const now = new Date();
+      let subscriptionExpiry: Date;
+      
+      if (subscriptionType === 'monthly') {
+        subscriptionExpiry = new Date(now.setMonth(now.getMonth() + 1));
+      } else if (subscriptionType === 'annual') {
+        subscriptionExpiry = new Date(now.setFullYear(now.getFullYear() + 1));
+      } else {
+        return res.status(400).json({ error: "Invalid subscription type" });
+      }
+
+      const updatedUser = await storage.updateUser(userId, {
+        subscriptionType,
+        subscriptionExpiry,
+      });
+
+      res.json(updatedUser);
+    } catch (error) {
+      console.error("Error subscribing user:", error);
+      res.status(500).json({ error: "Failed to subscribe" });
     }
   });
 

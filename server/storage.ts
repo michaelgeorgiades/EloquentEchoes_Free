@@ -1,6 +1,6 @@
 import { 
   type User, 
-  type InsertUser,
+  type UpsertUser,
   type Speaker,
   type InsertSpeaker,
   type Category,
@@ -9,16 +9,17 @@ import {
   type InsertSpeech,
   type SpeechWithDetails,
   type Subscription,
-  type InsertSubscription
+  type InsertSubscription,
+  type UserPurchase,
+  type InsertUserPurchase
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 
 export interface IStorage {
   // Users
   getUser(id: string): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
-  updateUser(id: string, user: Partial<InsertUser>): Promise<User | undefined>;
+  upsertUser(user: UpsertUser): Promise<User>;
+  updateUser(id: string, user: Partial<UpsertUser>): Promise<User | undefined>;
   deleteUser(id: string): Promise<boolean>;
   
   // Speakers
@@ -53,6 +54,12 @@ export interface IStorage {
   createSubscription(subscription: InsertSubscription): Promise<Subscription>;
   updateSubscription(id: string, subscription: Partial<InsertSubscription>): Promise<Subscription | undefined>;
   deleteSubscription(id: string): Promise<boolean>;
+  
+  // User Purchases
+  getUserPurchases(userId: string): Promise<UserPurchase[]>;
+  getUserPurchaseForSpeech(userId: string, speechId: string): Promise<UserPurchase | undefined>;
+  createUserPurchase(purchase: InsertUserPurchase): Promise<UserPurchase>;
+  userHasAccessToSpeech(userId: string, speechId: string): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {
@@ -61,6 +68,7 @@ export class MemStorage implements IStorage {
   private categories: Map<string, Category>;
   private speeches: Map<string, Speech>;
   private subscriptions: Map<string, Subscription>;
+  private userPurchases: Map<string, UserPurchase>;
 
   constructor() {
     this.users = new Map();
@@ -68,6 +76,7 @@ export class MemStorage implements IStorage {
     this.categories = new Map();
     this.speeches = new Map();
     this.subscriptions = new Map();
+    this.userPurchases = new Map();
     this.initializeData();
   }
 
@@ -464,17 +473,40 @@ export class MemStorage implements IStorage {
     );
   }
 
-  async createUser(insertUser: InsertUser): Promise<User> {
-    const id = randomUUID();
-    const user: User = { 
-      ...insertUser, 
-      id, 
+  async upsertUser(insertUser: UpsertUser): Promise<User> {
+    const id = insertUser.id || randomUUID();
+    const existing = this.users.get(id);
+    
+    const user: User = existing ? {
+      ...existing,
+      ...insertUser,
+      id,
+      updatedAt: new Date(),
+    } : { 
       language: 'en', 
       subscriptionType: null,
-      createdAt: new Date()
+      subscriptionExpiry: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      ...insertUser,
+      id,
     };
+    
     this.users.set(id, user);
     return user;
+  }
+  
+  async updateUser(id: string, updates: Partial<UpsertUser>): Promise<User | undefined> {
+    const user = this.users.get(id);
+    if (!user) return undefined;
+    
+    const updated: User = { ...user, ...updates, updatedAt: new Date() };
+    this.users.set(id, updated);
+    return updated;
+  }
+  
+  async deleteUser(id: string): Promise<boolean> {
+    return this.users.delete(id);
   }
 
   // Speaker methods
@@ -588,18 +620,35 @@ export class MemStorage implements IStorage {
     return this.subscriptions.delete(id);
   }
 
-  // User update/delete methods
-  async updateUser(id: string, updates: Partial<InsertUser>): Promise<User | undefined> {
-    const user = this.users.get(id);
-    if (!user) return undefined;
-
-    const updated: User = { ...user, ...updates };
-    this.users.set(id, updated);
-    return updated;
+  // User Purchases
+  async getUserPurchases(userId: string): Promise<UserPurchase[]> {
+    return Array.from(this.userPurchases.values()).filter(p => p.userId === userId);
   }
 
-  async deleteUser(id: string): Promise<boolean> {
-    return this.users.delete(id);
+  async getUserPurchaseForSpeech(userId: string, speechId: string): Promise<UserPurchase | undefined> {
+    return Array.from(this.userPurchases.values()).find(
+      p => p.userId === userId && p.speechId === speechId
+    );
+  }
+
+  async createUserPurchase(purchase: InsertUserPurchase): Promise<UserPurchase> {
+    const id = randomUUID();
+    const newPurchase: UserPurchase = { 
+      ...purchase, 
+      id,
+      purchasedAt: new Date()
+    };
+    this.userPurchases.set(id, newPurchase);
+    return newPurchase;
+  }
+
+  async userHasAccessToSpeech(userId: string, speechId: string): Promise<boolean> {
+    const user = this.users.get(userId);
+    if (user?.subscriptionType && user?.subscriptionExpiry && user.subscriptionExpiry > new Date()) {
+      return true;
+    }
+    const purchase = await this.getUserPurchaseForSpeech(userId, speechId);
+    return !!purchase;
   }
 
   // Speaker update/delete methods

@@ -12,11 +12,14 @@ import {
   type SpeechWithDetails,
   type Subscription,
   type InsertSubscription,
+  type UserPurchase,
+  type InsertUserPurchase,
   users,
   speakers,
   categories,
   speeches,
   subscriptions,
+  userPurchases,
 } from "@shared/schema";
 
 export interface IStorage {
@@ -58,6 +61,12 @@ export interface IStorage {
   createSubscription(subscription: InsertSubscription): Promise<Subscription>;
   updateSubscription(id: string, subscription: Partial<InsertSubscription>): Promise<Subscription | undefined>;
   deleteSubscription(id: string): Promise<boolean>;
+  
+  // User Purchases
+  getUserPurchases(userId: string): Promise<UserPurchase[]>;
+  getUserPurchaseForSpeech(userId: string, speechId: string): Promise<UserPurchase | undefined>;
+  createUserPurchase(purchase: InsertUserPurchase): Promise<UserPurchase>;
+  userHasAccessToSpeech(userId: string, speechId: string): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -275,6 +284,36 @@ export class DatabaseStorage implements IStorage {
   async deleteSubscription(id: string): Promise<boolean> {
     const result = await db.delete(subscriptions).where(eq(subscriptions.id, id));
     return result.rowCount !== null && result.rowCount > 0;
+  }
+
+  // User Purchases
+  async getUserPurchases(userId: string): Promise<UserPurchase[]> {
+    return await db.select().from(userPurchases).where(eq(userPurchases.userId, userId));
+  }
+
+  async getUserPurchaseForSpeech(userId: string, speechId: string): Promise<UserPurchase | undefined> {
+    const [purchase] = await db
+      .select()
+      .from(userPurchases)
+      .where(and(eq(userPurchases.userId, userId), eq(userPurchases.speechId, speechId)));
+    return purchase || undefined;
+  }
+
+  async createUserPurchase(purchase: InsertUserPurchase): Promise<UserPurchase> {
+    const [newPurchase] = await db.insert(userPurchases).values(purchase).returning();
+    return newPurchase;
+  }
+
+  async userHasAccessToSpeech(userId: string, speechId: string): Promise<boolean> {
+    // Check if user has active subscription
+    const user = await this.getUser(userId);
+    if (user?.subscriptionType && user?.subscriptionExpiry && user.subscriptionExpiry > new Date()) {
+      return true;
+    }
+
+    // Check if user purchased this specific speech
+    const purchase = await this.getUserPurchaseForSpeech(userId, speechId);
+    return !!purchase;
   }
 }
 
