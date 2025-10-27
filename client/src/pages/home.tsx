@@ -1,13 +1,41 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
-import { Search, Clock, User, BookOpen } from "lucide-react";
+import { Search, Clock, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useState } from "react";
 import type { SpeechWithDetails, Category } from "@shared/schema";
 import heroImage from "@assets/generated_images/Historical_library_hero_image_dfad7487.png";
+import lincolnImg from "@assets/generated_images/Abraham_Lincoln_portrait_a94bebb5.png";
+import churchillImg from "@assets/generated_images/Winston_Churchill_portrait_11b08254.png";
+import kingImg from "@assets/generated_images/Martin_Luther_King_Jr_portrait_2f76e848.png";
+import elizabethImg from "@assets/generated_images/Queen_Elizabeth_I_portrait_3a1ba861.png";
+import gandhiImg from "@assets/generated_images/Mahatma_Gandhi_portrait_4c29b8fe.png";
+import mandelaImg from "@assets/generated_images/Nelson_Mandela_portrait_c6b8c0e6.png";
+import hitlerImg from "@assets/generated_images/Adolf_Hitler_portrait_a072d976.png";
+import wattsImg from "@assets/generated_images/Alan_Watts_portrait_81227d38.png";
+import fdrImg from "@assets/generated_images/Franklin_D_Roosevelt_portrait_a6db030b.png";
+import jfkImg from "@assets/generated_images/John_F_Kennedy_portrait_4e6219ad.png";
+import napoleonImg from "@assets/generated_images/Napoleon_Bonaparte_portrait_651b5f58.png";
+import malcolmxImg from "@assets/generated_images/Malcolm_X_portrait_6ac5cb31.png";
+
+const speakerImages: Record<string, string> = {
+  lincoln: lincolnImg,
+  churchill: churchillImg,
+  king: kingImg,
+  elizabeth: elizabethImg,
+  gandhi: gandhiImg,
+  mandela: mandelaImg,
+  hitler: hitlerImg,
+  watts: wattsImg,
+  fdr: fdrImg,
+  jfk: jfkImg,
+  napoleon: napoleonImg,
+  malcolmx: malcolmxImg
+};
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -96,15 +124,22 @@ export default function Home() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {featuredSpeeches.map((speech) => (
-                <Link key={speech.id} href={`/speech/${speech.id}`}>
-                  <Card className="overflow-hidden hover-elevate active-elevate-2 cursor-pointer h-full" data-testid={`card-speech-${speech.id}`}>
-                    <div className="aspect-[4/3] bg-muted relative">
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <BookOpen className="h-16 w-16 text-muted-foreground" />
+              {featuredSpeeches.map((speech) => {
+                const speakerImageKey = speech.speaker.imageUrl.split('/').pop() || '';
+                const speakerImage = speakerImages[speakerImageKey];
+                
+                return (
+                  <Link key={speech.id} href={`/speech/${speech.id}`}>
+                    <Card className="overflow-hidden hover-elevate active-elevate-2 cursor-pointer h-full" data-testid={`card-speech-${speech.id}`}>
+                      <div className="aspect-[4/3] bg-muted relative overflow-hidden">
+                        <Avatar className="h-full w-full rounded-none">
+                          <AvatarImage src={speakerImage} alt={speech.speaker.name} className="object-cover" />
+                          <AvatarFallback className="rounded-none text-4xl">
+                            {speech.speaker.name.split(' ').map(n => n[0]).join('')}
+                          </AvatarFallback>
+                        </Avatar>
                       </div>
-                    </div>
-                    <div className="p-6">
+                      <div className="p-6">
                       <h3 className="font-display text-2xl font-semibold mb-2 line-clamp-2">
                         {speech.title}
                       </h3>
@@ -124,10 +159,11 @@ export default function Home() {
                           </div>
                         )}
                       </div>
-                    </div>
-                  </Card>
-                </Link>
-              ))}
+                      </div>
+                    </Card>
+                  </Link>
+                );
+              })}
             </div>
           )}
         </div>
