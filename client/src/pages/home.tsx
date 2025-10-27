@@ -59,9 +59,9 @@ export default function Home() {
               size="lg" 
               className="min-h-12 px-8 text-lg bg-white/10 backdrop-blur-md border-white/30 text-white hover:bg-white/20"
               asChild
-              data-testid="button-view-subscriptions"
+              data-testid="button-view-all-speeches"
             >
-              <Link href="/subscribe">View Subscriptions</Link>
+              <Link href="/browse">View All Speeches</Link>
             </Button>
           </div>
         </div>
@@ -103,11 +103,6 @@ export default function Home() {
                       <div className="absolute inset-0 flex items-center justify-center">
                         <BookOpen className="h-16 w-16 text-muted-foreground" />
                       </div>
-                      {speech.isPremium && (
-                        <Badge className="absolute top-4 right-4 bg-[#FFD700] text-[#2F4F4F] border-[#DAA520]">
-                          Premium
-                        </Badge>
-                      )}
                     </div>
                     <div className="p-6">
                       <h3 className="font-display text-2xl font-semibold mb-2 line-clamp-2">
@@ -173,11 +168,6 @@ export default function Home() {
                       <Badge variant="secondary" className="font-sans text-xs">
                         {speech.category.name}
                       </Badge>
-                      {speech.isPremium && (
-                        <Badge className="bg-[#FFD700] text-[#2F4F4F] border-[#DAA520] text-xs">
-                          Premium
-                        </Badge>
-                      )}
                     </div>
                     <h3 className="font-display text-xl font-semibold mb-2 line-clamp-2">
                       {speech.title}
@@ -197,24 +187,24 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Subscription CTA */}
+      {/* Free Access CTA */}
       <section className="py-20 px-6 bg-primary text-primary-foreground">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="font-display text-4xl md:text-5xl font-bold mb-6">
-            Unlock History's Greatest Voices
+            Explore History's Greatest Voices — Completely Free
           </h2>
           <p className="font-serif text-xl mb-8 leading-relaxed">
-            Get unlimited access to our complete collection of speeches and letters 
-            with a premium subscription.
+            Access our entire collection of influential speeches and letters from throughout history.
+            All content is freely available to everyone.
           </p>
           <Button 
             variant="secondary" 
             size="lg" 
             className="min-h-12 px-8 text-lg"
             asChild
-            data-testid="button-explore-plans"
+            data-testid="button-start-exploring"
           >
-            <Link href="/subscribe">Explore Plans</Link>
+            <Link href="/browse">Start Exploring</Link>
           </Button>
         </div>
       </section>

@@ -199,11 +199,6 @@ export default function Browse() {
                       <Badge variant="secondary" className="font-sans text-xs">
                         {speech.category.name}
                       </Badge>
-                      {speech.isPremium && (
-                        <Badge className="bg-[#FFD700] text-[#2F4F4F] border-[#DAA520] text-xs">
-                          Premium
-                        </Badge>
-                      )}
                     </div>
                     <h3 className="font-display text-xl font-semibold mb-2 line-clamp-2">
                       {speech.title}

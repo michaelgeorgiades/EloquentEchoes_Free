@@ -32,7 +32,6 @@ export default function Header() {
   const navLinks = [
     { href: "/", label: "Home" },
     { href: "/browse", label: "Browse" },
-    { href: "/subscribe", label: "Subscribe" },
   ];
 
   const isActive = (path: string) => {

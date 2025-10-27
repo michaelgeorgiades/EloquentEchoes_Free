@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useRoute, Link } from "wouter";
-import { Calendar, MapPin, Clock, User, ArrowLeft, Play, Pause, Lock } from "lucide-react";
+import { Calendar, MapPin, Clock, User, ArrowLeft, Play, Pause } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -96,11 +96,6 @@ export default function SpeechDetail() {
               <div className="flex flex-wrap gap-2 mb-3">
                 <Badge variant="secondary">{speech.category.name}</Badge>
                 <Badge variant="secondary">{speech.type === 'speech' ? 'Speech' : 'Letter'}</Badge>
-                {speech.isPremium && (
-                  <Badge className="bg-[#FFD700] text-[#2F4F4F] border-[#DAA520]">
-                    Premium
-                  </Badge>
-                )}
               </div>
 
               <h1 className="font-display text-4xl md:text-5xl font-bold mb-4">
@@ -178,33 +173,11 @@ export default function SpeechDetail() {
             {speech.type === 'speech' ? 'Transcript' : 'Full Text'}
           </h2>
           <Card className="p-8">
-            {speech.isPremium && !speech.audioUrl ? (
-              <div className="text-center py-12">
-                <Lock className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
-                <h3 className="font-display text-2xl font-semibold mb-2">Premium Content</h3>
-                <p className="font-serif text-lg text-muted-foreground mb-6">
-                  Subscribe or purchase this {speech.type} to access the full content
-                </p>
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <Button asChild data-testid="button-subscribe">
-                    <Link href="/subscribe">Subscribe Now</Link>
-                  </Button>
-                  {speech.price && (
-                    <Button variant="outline" asChild data-testid="button-purchase">
-                      <Link href={`/purchase/${speech.id}`}>
-                        Purchase for ${(speech.price / 100).toFixed(2)}
-                      </Link>
-                    </Button>
-                  )}
-                </div>
-              </div>
-            ) : (
-              <div className="font-serif text-lg leading-relaxed space-y-4">
-                {speech.transcript.split('\n\n').map((paragraph, i) => (
-                  <p key={i}>{paragraph}</p>
-                ))}
-              </div>
-            )}
+            <div className="font-serif text-lg leading-relaxed space-y-4">
+              {speech.transcript.split('\n\n').map((paragraph, i) => (
+                <p key={i}>{paragraph}</p>
+              ))}
+            </div>
           </Card>
         </section>
 

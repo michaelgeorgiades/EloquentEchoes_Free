@@ -8,7 +8,6 @@ import Home from "@/pages/home";
 import Browse from "@/pages/browse";
 import SpeechDetail from "@/pages/speech-detail";
 import SpeakerProfile from "@/pages/speaker-profile";
-import Subscribe from "@/pages/subscribe";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -18,7 +17,6 @@ function Router() {
       <Route path="/browse" component={Browse} />
       <Route path="/speech/:id" component={SpeechDetail} />
       <Route path="/speaker/:id" component={SpeakerProfile} />
-      <Route path="/subscribe" component={Subscribe} />
       <Route component={NotFound} />
     </Switch>
   );
