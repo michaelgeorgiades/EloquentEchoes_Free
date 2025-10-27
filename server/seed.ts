@@ -1,5 +1,5 @@
 import { db } from "./db";
-import { speakers, categories, speeches, subscriptions } from "@shared/schema";
+import { speakers, categories, speeches } from "@shared/schema";
 
 export async function seedDatabase() {
   console.log("Seeding database...");
@@ -146,9 +146,7 @@ export async function seedDatabase() {
       audioUrl: "/api/placeholder-audio/gettysburg",
       duration: 180,
       excerpt: "Four score and seven years ago our fathers brought forth on this continent, a new nation...",
-      imageUrl: "/api/placeholder-speech/gettysburg",
-      isPremium: false,
-      price: null
+      imageUrl: "/api/placeholder-speech/gettysburg"
     },
     {
       title: "We Shall Fight on the Beaches",
@@ -162,9 +160,7 @@ export async function seedDatabase() {
       audioUrl: "/api/placeholder-audio/beaches",
       duration: 420,
       excerpt: "We shall go on to the end. We shall fight in France, we shall fight on the seas...",
-      imageUrl: "/api/placeholder-speech/beaches",
-      isPremium: true,
-      price: 299
+      imageUrl: "/api/placeholder-speech/beaches"
     },
     {
       title: "I Have a Dream",
@@ -178,9 +174,7 @@ export async function seedDatabase() {
       audioUrl: "/api/placeholder-audio/dream",
       duration: 1020,
       excerpt: "I have a dream that one day this nation will rise up and live out the true meaning...",
-      imageUrl: "/api/placeholder-speech/dream",
-      isPremium: false,
-      price: null
+      imageUrl: "/api/placeholder-speech/dream"
     },
     {
       title: "Speech to the Troops at Tilbury",
@@ -194,9 +188,7 @@ export async function seedDatabase() {
       audioUrl: "/api/placeholder-audio/tilbury",
       duration: 240,
       excerpt: "I know I have the body of a weak, feeble woman; but I have the heart and stomach...",
-      imageUrl: "/api/placeholder-speech/tilbury",
-      isPremium: true,
-      price: 199
+      imageUrl: "/api/placeholder-speech/tilbury"
     },
     {
       title: "Quit India Speech",
@@ -210,9 +202,7 @@ export async function seedDatabase() {
       audioUrl: "/api/placeholder-audio/quit-india",
       duration: 360,
       excerpt: "Here is a mantra, a short one, that I give you. You may imprint it on your hearts...",
-      imageUrl: "/api/placeholder-speech/quit-india",
-      isPremium: true,
-      price: 249
+      imageUrl: "/api/placeholder-speech/quit-india"
     },
     {
       title: "Inauguration Address",
@@ -226,9 +216,7 @@ export async function seedDatabase() {
       audioUrl: "/api/placeholder-audio/mandela-inauguration",
       duration: 720,
       excerpt: "We understand it still that there is no easy road to freedom. We know it well that none of us acting alone can achieve success...",
-      imageUrl: "/api/placeholder-speech/mandela-inauguration",
-      isPremium: false,
-      price: null
+      imageUrl: "/api/placeholder-speech/mandela-inauguration"
     },
     {
       title: "Reichstag Speech",
@@ -242,9 +230,7 @@ export async function seedDatabase() {
       audioUrl: "/api/placeholder-audio/reichstag",
       duration: 540,
       excerpt: "Today I will once more be a prophet: if the international Jewish financiers in and outside Europe should succeed...",
-      imageUrl: "/api/placeholder-speech/reichstag",
-      isPremium: true,
-      price: 199
+      imageUrl: "/api/placeholder-speech/reichstag"
     },
     {
       title: "The Nature of Consciousness",
@@ -258,9 +244,7 @@ export async function seedDatabase() {
       audioUrl: "/api/placeholder-audio/watts-consciousness",
       duration: 1800,
       excerpt: "We do not 'come into' this world; we come out of it, as leaves from a tree...",
-      imageUrl: "/api/placeholder-speech/watts-consciousness",
-      isPremium: true,
-      price: 349
+      imageUrl: "/api/placeholder-speech/watts-consciousness"
     },
     {
       title: "First Fireside Chat",
@@ -274,9 +258,7 @@ export async function seedDatabase() {
       audioUrl: "/api/placeholder-audio/fdr-fireside",
       duration: 840,
       excerpt: "I want to talk for a few minutes with the people of the United States about banking...",
-      imageUrl: "/api/placeholder-speech/fdr-fireside",
-      isPremium: false,
-      price: null
+      imageUrl: "/api/placeholder-speech/fdr-fireside"
     },
     {
       title: "Ask Not What Your Country Can Do For You",
@@ -290,9 +272,7 @@ export async function seedDatabase() {
       audioUrl: "/api/placeholder-audio/jfk-inaugural",
       duration: 840,
       excerpt: "And so, my fellow Americans: ask not what your country can do for you—ask what you can do for your country...",
-      imageUrl: "/api/placeholder-speech/jfk-inaugural",
-      isPremium: false,
-      price: null
+      imageUrl: "/api/placeholder-speech/jfk-inaugural"
     },
     {
       title: "Farewell to the Old Guard",
@@ -306,9 +286,7 @@ export async function seedDatabase() {
       audioUrl: "/api/placeholder-audio/napoleon-farewell",
       duration: 300,
       excerpt: "Soldiers of my Old Guard: I bid you farewell. For twenty years I have constantly accompanied you...",
-      imageUrl: "/api/placeholder-speech/napoleon-farewell",
-      isPremium: true,
-      price: 249
+      imageUrl: "/api/placeholder-speech/napoleon-farewell"
     },
     {
       title: "The Ballot or the Bullet",
@@ -322,34 +300,7 @@ export async function seedDatabase() {
       audioUrl: "/api/placeholder-audio/malcolm-ballot",
       duration: 3600,
       excerpt: "It's time for us to submerge our differences and realize that it is best for us to first see that we have the same problem...",
-      imageUrl: "/api/placeholder-speech/malcolm-ballot",
-      isPremium: false,
-      price: null
-    }
-  ]);
-
-  // Insert subscriptions
-  await db.insert(subscriptions).values([
-    {
-      name: "Monthly Access",
-      type: "monthly",
-      price: 999,
-      features: ["Unlimited access to all speeches", "Audio playback", "Full transcripts", "Multi-language support"],
-      isPopular: false
-    },
-    {
-      name: "Annual Access",
-      type: "annual",
-      price: 9999,
-      features: ["Unlimited access to all speeches", "Audio playback", "Full transcripts", "Multi-language support", "Offline downloads", "Priority support"],
-      isPopular: true
-    },
-    {
-      name: "Per-Speech Purchase",
-      type: "per-speech",
-      price: 299,
-      features: ["Single speech access", "Audio playback", "Full transcript", "Lifetime access"],
-      isPopular: false
+      imageUrl: "/api/placeholder-speech/malcolm-ballot"
     }
   ]);
 

@@ -46,27 +46,11 @@ export const speeches = pgTable("speeches", {
   duration: integer("duration"), // in seconds
   excerpt: text("excerpt").notNull(),
   imageUrl: text("image_url"),
-  isPremium: boolean("is_premium").notNull().default(false),
-  price: integer("price"), // in cents, for per-speech purchase
 });
 
 export const insertSpeechSchema = createInsertSchema(speeches).omit({ id: true });
 export type InsertSpeech = z.infer<typeof insertSpeechSchema>;
 export type Speech = typeof speeches.$inferSelect;
-
-// Subscriptions Table
-export const subscriptions = pgTable("subscriptions", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  name: text("name").notNull(),
-  type: text("type").notNull(), // 'monthly', 'annual', 'per-speech'
-  price: integer("price").notNull(), // in cents
-  features: text("features").array().notNull(),
-  isPopular: boolean("is_popular").notNull().default(false),
-});
-
-export const insertSubscriptionSchema = createInsertSchema(subscriptions).omit({ id: true });
-export type InsertSubscription = z.infer<typeof insertSubscriptionSchema>;
-export type Subscription = typeof subscriptions.$inferSelect;
 
 // Extended types for joined data
 export type SpeechWithDetails = Speech & {
@@ -93,28 +77,12 @@ export const users = pgTable("users", {
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
   language: text("language").notNull().default('en'),
-  subscriptionType: text("subscription_type"),
-  subscriptionExpiry: timestamp("subscription_expiry"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
-
-// User Purchases Table (individual speech purchases)
-export const userPurchases = pgTable("user_purchases", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: 'cascade' }),
-  speechId: varchar("speech_id").notNull().references(() => speeches.id, { onDelete: 'cascade' }),
-  price: integer("price").notNull(),
-  purchasedAt: timestamp("purchased_at").notNull().defaultNow(),
-  paypalOrderId: text("paypal_order_id"),
-});
-
-export const insertUserPurchaseSchema = createInsertSchema(userPurchases).omit({ id: true, purchasedAt: true });
-export type InsertUserPurchase = z.infer<typeof insertUserPurchaseSchema>;
-export type UserPurchase = typeof userPurchases.$inferSelect;
 
 // User Favorites Table
 export const userFavorites = pgTable("user_favorites", {
