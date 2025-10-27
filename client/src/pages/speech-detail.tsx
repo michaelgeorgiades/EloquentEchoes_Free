@@ -56,15 +56,21 @@ export default function SpeechDetail() {
     const handleTimeUpdate = () => setCurrentTime(audio.currentTime);
     const handleDurationChange = () => setDuration(audio.duration);
     const handleEnded = () => setIsPlaying(false);
+    const handleError = (e: Event) => {
+      console.warn('Audio playback error (placeholder audio not available):', e);
+      setIsPlaying(false);
+    };
 
     audio.addEventListener('timeupdate', handleTimeUpdate);
     audio.addEventListener('durationchange', handleDurationChange);
     audio.addEventListener('ended', handleEnded);
+    audio.addEventListener('error', handleError);
 
     return () => {
       audio.removeEventListener('timeupdate', handleTimeUpdate);
       audio.removeEventListener('durationchange', handleDurationChange);
       audio.removeEventListener('ended', handleEnded);
+      audio.removeEventListener('error', handleError);
     };
   }, [speech]);
 
@@ -94,15 +100,21 @@ export default function SpeechDetail() {
   const speakerImageKey = speech.speaker.imageUrl.split('/').pop() || '';
   const speakerImage = speakerImages[speakerImageKey];
 
-  const togglePlayPause = () => {
+  const togglePlayPause = async () => {
     if (!audioRef.current) return;
     
     if (isPlaying) {
       audioRef.current.pause();
+      setIsPlaying(false);
     } else {
-      audioRef.current.play();
+      try {
+        await audioRef.current.play();
+        setIsPlaying(true);
+      } catch (error) {
+        console.warn('Audio playback failed (placeholder audio not available):', error);
+        setIsPlaying(false);
+      }
     }
-    setIsPlaying(!isPlaying);
   };
 
   const formatTime = (time: number) => {
