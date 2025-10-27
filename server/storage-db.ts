@@ -10,16 +10,10 @@ import {
   type Speech,
   type InsertSpeech,
   type SpeechWithDetails,
-  type Subscription,
-  type InsertSubscription,
-  type UserPurchase,
-  type InsertUserPurchase,
   users,
   speakers,
   categories,
   speeches,
-  subscriptions,
-  userPurchases,
 } from "@shared/schema";
 
 export interface IStorage {
@@ -54,19 +48,6 @@ export interface IStorage {
   createSpeech(speech: InsertSpeech): Promise<Speech>;
   updateSpeech(id: string, speech: Partial<InsertSpeech>): Promise<Speech | undefined>;
   deleteSpeech(id: string): Promise<boolean>;
-
-  // Subscriptions
-  getSubscriptions(): Promise<Subscription[]>;
-  getSubscription(id: string): Promise<Subscription | undefined>;
-  createSubscription(subscription: InsertSubscription): Promise<Subscription>;
-  updateSubscription(id: string, subscription: Partial<InsertSubscription>): Promise<Subscription | undefined>;
-  deleteSubscription(id: string): Promise<boolean>;
-  
-  // User Purchases
-  getUserPurchases(userId: string): Promise<UserPurchase[]>;
-  getUserPurchaseForSpeech(userId: string, speechId: string): Promise<UserPurchase | undefined>;
-  createUserPurchase(purchase: InsertUserPurchase): Promise<UserPurchase>;
-  userHasAccessToSpeech(userId: string, speechId: string): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -177,8 +158,6 @@ export class DatabaseStorage implements IStorage {
         duration: speeches.duration,
         excerpt: speeches.excerpt,
         imageUrl: speeches.imageUrl,
-        isPremium: speeches.isPremium,
-        price: speeches.price,
         speaker: speakers,
         category: categories,
       })
@@ -233,8 +212,6 @@ export class DatabaseStorage implements IStorage {
         duration: speeches.duration,
         excerpt: speeches.excerpt,
         imageUrl: speeches.imageUrl,
-        isPremium: speeches.isPremium,
-        price: speeches.price,
         speaker: speakers,
         category: categories,
       })
@@ -259,61 +236,6 @@ export class DatabaseStorage implements IStorage {
   async deleteSpeech(id: string): Promise<boolean> {
     const result = await db.delete(speeches).where(eq(speeches.id, id));
     return result.rowCount !== null && result.rowCount > 0;
-  }
-
-  // Subscriptions
-  async getSubscriptions(): Promise<Subscription[]> {
-    return await db.select().from(subscriptions);
-  }
-
-  async getSubscription(id: string): Promise<Subscription | undefined> {
-    const [subscription] = await db.select().from(subscriptions).where(eq(subscriptions.id, id));
-    return subscription || undefined;
-  }
-
-  async createSubscription(subscription: InsertSubscription): Promise<Subscription> {
-    const [newSubscription] = await db.insert(subscriptions).values(subscription).returning();
-    return newSubscription;
-  }
-
-  async updateSubscription(id: string, subscription: Partial<InsertSubscription>): Promise<Subscription | undefined> {
-    const [updated] = await db.update(subscriptions).set(subscription).where(eq(subscriptions.id, id)).returning();
-    return updated || undefined;
-  }
-
-  async deleteSubscription(id: string): Promise<boolean> {
-    const result = await db.delete(subscriptions).where(eq(subscriptions.id, id));
-    return result.rowCount !== null && result.rowCount > 0;
-  }
-
-  // User Purchases
-  async getUserPurchases(userId: string): Promise<UserPurchase[]> {
-    return await db.select().from(userPurchases).where(eq(userPurchases.userId, userId));
-  }
-
-  async getUserPurchaseForSpeech(userId: string, speechId: string): Promise<UserPurchase | undefined> {
-    const [purchase] = await db
-      .select()
-      .from(userPurchases)
-      .where(and(eq(userPurchases.userId, userId), eq(userPurchases.speechId, speechId)));
-    return purchase || undefined;
-  }
-
-  async createUserPurchase(purchase: InsertUserPurchase): Promise<UserPurchase> {
-    const [newPurchase] = await db.insert(userPurchases).values(purchase).returning();
-    return newPurchase;
-  }
-
-  async userHasAccessToSpeech(userId: string, speechId: string): Promise<boolean> {
-    // Check if user has active subscription
-    const user = await this.getUser(userId);
-    if (user?.subscriptionType && user?.subscriptionExpiry && user.subscriptionExpiry > new Date()) {
-      return true;
-    }
-
-    // Check if user purchased this specific speech
-    const purchase = await this.getUserPurchaseForSpeech(userId, speechId);
-    return !!purchase;
   }
 }
 

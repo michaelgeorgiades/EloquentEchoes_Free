@@ -7,11 +7,7 @@ import {
   type InsertCategory,
   type Speech,
   type InsertSpeech,
-  type SpeechWithDetails,
-  type Subscription,
-  type InsertSubscription,
-  type UserPurchase,
-  type InsertUserPurchase
+  type SpeechWithDetails
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 
@@ -47,19 +43,6 @@ export interface IStorage {
   createSpeech(speech: InsertSpeech): Promise<Speech>;
   updateSpeech(id: string, speech: Partial<InsertSpeech>): Promise<Speech | undefined>;
   deleteSpeech(id: string): Promise<boolean>;
-  
-  // Subscriptions
-  getSubscriptions(): Promise<Subscription[]>;
-  getSubscription(id: string): Promise<Subscription | undefined>;
-  createSubscription(subscription: InsertSubscription): Promise<Subscription>;
-  updateSubscription(id: string, subscription: Partial<InsertSubscription>): Promise<Subscription | undefined>;
-  deleteSubscription(id: string): Promise<boolean>;
-  
-  // User Purchases
-  getUserPurchases(userId: string): Promise<UserPurchase[]>;
-  getUserPurchaseForSpeech(userId: string, speechId: string): Promise<UserPurchase | undefined>;
-  createUserPurchase(purchase: InsertUserPurchase): Promise<UserPurchase>;
-  userHasAccessToSpeech(userId: string, speechId: string): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {
@@ -67,16 +50,12 @@ export class MemStorage implements IStorage {
   private speakers: Map<string, Speaker>;
   private categories: Map<string, Category>;
   private speeches: Map<string, Speech>;
-  private subscriptions: Map<string, Subscription>;
-  private userPurchases: Map<string, UserPurchase>;
 
   constructor() {
     this.users = new Map();
     this.speakers = new Map();
     this.categories = new Map();
     this.speeches = new Map();
-    this.subscriptions = new Map();
-    this.userPurchases = new Map();
     this.initializeData();
   }
 
@@ -236,9 +215,7 @@ export class MemStorage implements IStorage {
         audioUrl: "/api/placeholder-audio/gettysburg",
         duration: 180,
         excerpt: "Four score and seven years ago our fathers brought forth on this continent, a new nation...",
-        imageUrl: "/api/placeholder-speech/gettysburg",
-        isPremium: false,
-        price: null
+        imageUrl: "/api/placeholder-speech/gettysburg"
       },
       {
         id: randomUUID(),
@@ -253,9 +230,7 @@ export class MemStorage implements IStorage {
         audioUrl: "/api/placeholder-audio/beaches",
         duration: 420,
         excerpt: "We shall go on to the end. We shall fight in France, we shall fight on the seas...",
-        imageUrl: "/api/placeholder-speech/beaches",
-        isPremium: true,
-        price: 299
+        imageUrl: "/api/placeholder-speech/beaches"
       },
       {
         id: randomUUID(),
@@ -270,9 +245,7 @@ export class MemStorage implements IStorage {
         audioUrl: "/api/placeholder-audio/dream",
         duration: 1020,
         excerpt: "I have a dream that one day this nation will rise up and live out the true meaning...",
-        imageUrl: "/api/placeholder-speech/dream",
-        isPremium: false,
-        price: null
+        imageUrl: "/api/placeholder-speech/dream"
       },
       {
         id: randomUUID(),
@@ -287,9 +260,7 @@ export class MemStorage implements IStorage {
         audioUrl: "/api/placeholder-audio/tilbury",
         duration: 240,
         excerpt: "I know I have the body of a weak, feeble woman; but I have the heart and stomach...",
-        imageUrl: "/api/placeholder-speech/tilbury",
-        isPremium: true,
-        price: 199
+        imageUrl: "/api/placeholder-speech/tilbury"
       },
       {
         id: randomUUID(),
@@ -304,9 +275,7 @@ export class MemStorage implements IStorage {
         audioUrl: "/api/placeholder-audio/quit-india",
         duration: 360,
         excerpt: "Here is a mantra, a short one, that I give you. You may imprint it on your hearts...",
-        imageUrl: "/api/placeholder-speech/quit-india",
-        isPremium: true,
-        price: 249
+        imageUrl: "/api/placeholder-speech/quit-india"
       },
       {
         id: randomUUID(),
@@ -321,9 +290,7 @@ export class MemStorage implements IStorage {
         audioUrl: "/api/placeholder-audio/mandela-inauguration",
         duration: 720,
         excerpt: "We understand it still that there is no easy road to freedom. We know it well that none of us acting alone can achieve success...",
-        imageUrl: "/api/placeholder-speech/mandela-inauguration",
-        isPremium: false,
-        price: null
+        imageUrl: "/api/placeholder-speech/mandela-inauguration"
       },
       {
         id: randomUUID(),
@@ -338,9 +305,7 @@ export class MemStorage implements IStorage {
         audioUrl: "/api/placeholder-audio/reichstag",
         duration: 540,
         excerpt: "Today I will once more be a prophet: if the international Jewish financiers in and outside Europe should succeed...",
-        imageUrl: "/api/placeholder-speech/reichstag",
-        isPremium: true,
-        price: 199
+        imageUrl: "/api/placeholder-speech/reichstag"
       },
       {
         id: randomUUID(),
@@ -355,9 +320,7 @@ export class MemStorage implements IStorage {
         audioUrl: "/api/placeholder-audio/watts-consciousness",
         duration: 1800,
         excerpt: "We do not 'come into' this world; we come out of it, as leaves from a tree...",
-        imageUrl: "/api/placeholder-speech/watts-consciousness",
-        isPremium: true,
-        price: 349
+        imageUrl: "/api/placeholder-speech/watts-consciousness"
       },
       {
         id: randomUUID(),
@@ -372,9 +335,7 @@ export class MemStorage implements IStorage {
         audioUrl: "/api/placeholder-audio/fdr-fireside",
         duration: 840,
         excerpt: "I want to talk for a few minutes with the people of the United States about banking...",
-        imageUrl: "/api/placeholder-speech/fdr-fireside",
-        isPremium: false,
-        price: null
+        imageUrl: "/api/placeholder-speech/fdr-fireside"
       },
       {
         id: randomUUID(),
@@ -389,9 +350,7 @@ export class MemStorage implements IStorage {
         audioUrl: "/api/placeholder-audio/jfk-inaugural",
         duration: 840,
         excerpt: "And so, my fellow Americans: ask not what your country can do for you—ask what you can do for your country...",
-        imageUrl: "/api/placeholder-speech/jfk-inaugural",
-        isPremium: false,
-        price: null
+        imageUrl: "/api/placeholder-speech/jfk-inaugural"
       },
       {
         id: randomUUID(),
@@ -406,9 +365,7 @@ export class MemStorage implements IStorage {
         audioUrl: "/api/placeholder-audio/napoleon-farewell",
         duration: 300,
         excerpt: "Soldiers of my Old Guard: I bid you farewell. For twenty years I have constantly accompanied you...",
-        imageUrl: "/api/placeholder-speech/napoleon-farewell",
-        isPremium: true,
-        price: 249
+        imageUrl: "/api/placeholder-speech/napoleon-farewell"
       },
       {
         id: randomUUID(),
@@ -423,54 +380,16 @@ export class MemStorage implements IStorage {
         audioUrl: "/api/placeholder-audio/malcolm-ballot",
         duration: 3600,
         excerpt: "It's time for us to submerge our differences and realize that it is best for us to first see that we have the same problem...",
-        imageUrl: "/api/placeholder-speech/malcolm-ballot",
-        isPremium: false,
-        price: null
+        imageUrl: "/api/placeholder-speech/malcolm-ballot"
       }
     ];
     
     speeches.forEach(s => this.speeches.set(s.id, s));
-
-    // Initialize subscription plans
-    const subscriptions: Subscription[] = [
-      {
-        id: randomUUID(),
-        name: "Monthly Access",
-        type: "monthly",
-        price: 999,
-        features: ["Unlimited access to all speeches", "Audio playback", "Full transcripts", "Multi-language support"],
-        isPopular: false
-      },
-      {
-        id: randomUUID(),
-        name: "Annual Access",
-        type: "annual",
-        price: 9999,
-        features: ["Unlimited access to all speeches", "Audio playback", "Full transcripts", "Multi-language support", "Offline downloads", "Priority support"],
-        isPopular: true
-      },
-      {
-        id: randomUUID(),
-        name: "Per Speech",
-        type: "per-speech",
-        price: 299,
-        features: ["Single speech purchase", "Lifetime access", "Audio playback", "Full transcript"],
-        isPopular: false
-      }
-    ];
-    
-    subscriptions.forEach(s => this.subscriptions.set(s.id, s));
   }
 
   // User methods
   async getUser(id: string): Promise<User | undefined> {
     return this.users.get(id);
-  }
-
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
   }
 
   async upsertUser(insertUser: UpsertUser): Promise<User> {
@@ -483,9 +402,7 @@ export class MemStorage implements IStorage {
       id,
       updatedAt: new Date(),
     } : { 
-      language: 'en', 
-      subscriptionType: null,
-      subscriptionExpiry: null,
+      language: 'en',
       createdAt: new Date(),
       updatedAt: new Date(),
       ...insertUser,
@@ -525,6 +442,19 @@ export class MemStorage implements IStorage {
     return speaker;
   }
 
+  async updateSpeaker(id: string, updates: Partial<InsertSpeaker>): Promise<Speaker | undefined> {
+    const speaker = this.speakers.get(id);
+    if (!speaker) return undefined;
+
+    const updated: Speaker = { ...speaker, ...updates };
+    this.speakers.set(id, updated);
+    return updated;
+  }
+
+  async deleteSpeaker(id: string): Promise<boolean> {
+    return this.speakers.delete(id);
+  }
+
   // Category methods
   async getCategories(): Promise<Category[]> {
     return Array.from(this.categories.values());
@@ -539,6 +469,19 @@ export class MemStorage implements IStorage {
     const category: Category = { ...insertCategory, id };
     this.categories.set(id, category);
     return category;
+  }
+
+  async updateCategory(id: string, updates: Partial<InsertCategory>): Promise<Category | undefined> {
+    const category = this.categories.get(id);
+    if (!category) return undefined;
+
+    const updated: Category = { ...category, ...updates };
+    this.categories.set(id, updated);
+    return updated;
+  }
+
+  async deleteCategory(id: string): Promise<boolean> {
+    return this.categories.delete(id);
   }
 
   // Speech methods
@@ -591,95 +534,6 @@ export class MemStorage implements IStorage {
     return speech;
   }
 
-  // Subscription methods
-  async getSubscriptions(): Promise<Subscription[]> {
-    return Array.from(this.subscriptions.values());
-  }
-
-  async getSubscription(id: string): Promise<Subscription | undefined> {
-    return this.subscriptions.get(id);
-  }
-
-  async createSubscription(insertSubscription: InsertSubscription): Promise<Subscription> {
-    const id = randomUUID();
-    const subscription: Subscription = { ...insertSubscription, id };
-    this.subscriptions.set(id, subscription);
-    return subscription;
-  }
-
-  async updateSubscription(id: string, updates: Partial<InsertSubscription>): Promise<Subscription | undefined> {
-    const subscription = this.subscriptions.get(id);
-    if (!subscription) return undefined;
-
-    const updated: Subscription = { ...subscription, ...updates };
-    this.subscriptions.set(id, updated);
-    return updated;
-  }
-
-  async deleteSubscription(id: string): Promise<boolean> {
-    return this.subscriptions.delete(id);
-  }
-
-  // User Purchases
-  async getUserPurchases(userId: string): Promise<UserPurchase[]> {
-    return Array.from(this.userPurchases.values()).filter(p => p.userId === userId);
-  }
-
-  async getUserPurchaseForSpeech(userId: string, speechId: string): Promise<UserPurchase | undefined> {
-    return Array.from(this.userPurchases.values()).find(
-      p => p.userId === userId && p.speechId === speechId
-    );
-  }
-
-  async createUserPurchase(purchase: InsertUserPurchase): Promise<UserPurchase> {
-    const id = randomUUID();
-    const newPurchase: UserPurchase = { 
-      ...purchase, 
-      id,
-      purchasedAt: new Date()
-    };
-    this.userPurchases.set(id, newPurchase);
-    return newPurchase;
-  }
-
-  async userHasAccessToSpeech(userId: string, speechId: string): Promise<boolean> {
-    const user = this.users.get(userId);
-    if (user?.subscriptionType && user?.subscriptionExpiry && user.subscriptionExpiry > new Date()) {
-      return true;
-    }
-    const purchase = await this.getUserPurchaseForSpeech(userId, speechId);
-    return !!purchase;
-  }
-
-  // Speaker update/delete methods
-  async updateSpeaker(id: string, updates: Partial<InsertSpeaker>): Promise<Speaker | undefined> {
-    const speaker = this.speakers.get(id);
-    if (!speaker) return undefined;
-
-    const updated: Speaker = { ...speaker, ...updates };
-    this.speakers.set(id, updated);
-    return updated;
-  }
-
-  async deleteSpeaker(id: string): Promise<boolean> {
-    return this.speakers.delete(id);
-  }
-
-  // Category update/delete methods
-  async updateCategory(id: string, updates: Partial<InsertCategory>): Promise<Category | undefined> {
-    const category = this.categories.get(id);
-    if (!category) return undefined;
-
-    const updated: Category = { ...category, ...updates };
-    this.categories.set(id, updated);
-    return updated;
-  }
-
-  async deleteCategory(id: string): Promise<boolean> {
-    return this.categories.delete(id);
-  }
-
-  // Speech update/delete methods
   async updateSpeech(id: string, updates: Partial<InsertSpeech>): Promise<Speech | undefined> {
     const speech = this.speeches.get(id);
     if (!speech) return undefined;

@@ -1,7 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage-db";
-import { createPaypalOrder, capturePaypalOrder, loadPaypalDefault } from "./paypal";
 import { seedDatabase } from "./seed";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 
@@ -26,19 +25,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error("Error fetching user:", error);
       res.status(500).json({ message: "Failed to fetch user" });
     }
-  });
-
-  // PayPal Routes (from PayPal integration blueprint)
-  app.get("/paypal/setup", async (req, res) => {
-    await loadPaypalDefault(req, res);
-  });
-
-  app.post("/paypal/order", async (req, res) => {
-    await createPaypalOrder(req, res);
-  });
-
-  app.post("/paypal/order/:orderID/capture", async (req, res) => {
-    await capturePaypalOrder(req, res);
   });
 
   // Speakers API
@@ -210,142 +196,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: "Failed to delete speech" });
-    }
-  });
-
-  // Subscriptions API
-  app.get("/api/subscriptions", async (req, res) => {
-    try {
-      const subscriptions = await storage.getSubscriptions();
-      res.json(subscriptions);
-    } catch (error) {
-      res.status(500).json({ error: "Failed to fetch subscriptions" });
-    }
-  });
-
-  app.post("/api/subscriptions", async (req, res) => {
-    try {
-      const subscription = await storage.createSubscription(req.body);
-      res.status(201).json(subscription);
-    } catch (error) {
-      res.status(500).json({ error: "Failed to create subscription" });
-    }
-  });
-
-  app.get("/api/subscriptions/:id", async (req, res) => {
-    try {
-      const subscription = await storage.getSubscription(req.params.id);
-      if (!subscription) {
-        return res.status(404).json({ error: "Subscription not found" });
-      }
-      res.json(subscription);
-    } catch (error) {
-      res.status(500).json({ error: "Failed to fetch subscription" });
-    }
-  });
-
-  app.put("/api/subscriptions/:id", async (req, res) => {
-    try {
-      const updated = await storage.updateSubscription(req.params.id, req.body);
-      if (!updated) {
-        return res.status(404).json({ error: "Subscription not found" });
-      }
-      res.json(updated);
-    } catch (error) {
-      res.status(500).json({ error: "Failed to update subscription" });
-    }
-  });
-
-  app.delete("/api/subscriptions/:id", async (req, res) => {
-    try {
-      const deleted = await storage.deleteSubscription(req.params.id);
-      if (!deleted) {
-        return res.status(404).json({ error: "Subscription not found" });
-      }
-      res.json({ success: true });
-    } catch (error) {
-      res.status(500).json({ error: "Failed to delete subscription" });
-    }
-  });
-
-  // User Purchases API (require authentication)
-  app.get("/api/user/purchases", isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user.claims.sub;
-      const purchases = await storage.getUserPurchases(userId);
-      res.json(purchases);
-    } catch (error) {
-      console.error("Error fetching user purchases:", error);
-      res.status(500).json({ error: "Failed to fetch purchases" });
-    }
-  });
-
-  app.post("/api/user/purchases", isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user.claims.sub;
-      const { speechId, price, paypalOrderId } = req.body;
-
-      if (!speechId || !price) {
-        return res.status(400).json({ error: "Speech ID and price are required" });
-      }
-
-      const purchase = await storage.createUserPurchase({
-        userId,
-        speechId,
-        price,
-        paypalOrderId,
-      });
-
-      res.status(201).json(purchase);
-    } catch (error) {
-      console.error("Error creating purchase:", error);
-      res.status(500).json({ error: "Failed to create purchase" });
-    }
-  });
-
-  app.get("/api/user/access/:speechId", isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user.claims.sub;
-      const { speechId } = req.params;
-      const hasAccess = await storage.userHasAccessToSpeech(userId, speechId);
-      res.json({ hasAccess });
-    } catch (error) {
-      console.error("Error checking access:", error);
-      res.status(500).json({ error: "Failed to check access" });
-    }
-  });
-
-  // Subscribe to a subscription plan
-  app.post("/api/user/subscribe", isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user.claims.sub;
-      const { subscriptionType, paypalOrderId } = req.body;
-
-      if (!subscriptionType) {
-        return res.status(400).json({ error: "Subscription type is required" });
-      }
-
-      // Calculate expiry date based on subscription type
-      const now = new Date();
-      let subscriptionExpiry: Date;
-      
-      if (subscriptionType === 'monthly') {
-        subscriptionExpiry = new Date(now.setMonth(now.getMonth() + 1));
-      } else if (subscriptionType === 'annual') {
-        subscriptionExpiry = new Date(now.setFullYear(now.getFullYear() + 1));
-      } else {
-        return res.status(400).json({ error: "Invalid subscription type" });
-      }
-
-      const updatedUser = await storage.updateUser(userId, {
-        subscriptionType,
-        subscriptionExpiry,
-      });
-
-      res.json(updatedUser);
-    } catch (error) {
-      console.error("Error subscribing user:", error);
-      res.status(500).json({ error: "Failed to subscribe" });
     }
   });
 
