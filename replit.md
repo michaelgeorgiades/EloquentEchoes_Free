@@ -2,7 +2,7 @@
 
 ## Overview
 
-A premium educational platform for exploring historical speeches and letters, inspired by MasterClass and Audible. The application provides access to transcripts, audio playback, biographical context, and rich historical metadata with a sophisticated, academically-grounded user experience. Features include multilingual support, subscription-based access with PayPal integration, and a classical design aesthetic emphasizing readability and historical gravitas.
+A completely free educational platform for exploring historical speeches and letters, inspired by MasterClass and Audible. The application provides unrestricted access to transcripts, audio playback, biographical context, and rich historical metadata with a sophisticated, academically-grounded user experience. Features include multilingual support, user authentication via Replit Auth, and a classical design aesthetic emphasizing readability and historical gravitas. All content is freely accessible to everyone without any payment requirements.
 
 ## User Preferences
 
@@ -14,7 +14,7 @@ Preferred communication style: Simple, everyday language.
 
 **Framework**: React with TypeScript, using Vite as the build tool and development server.
 
-**Routing**: Client-side routing implemented with Wouter, a lightweight alternative to React Router. Routes include home, browse, speech detail, speaker profile, and subscription pages.
+**Routing**: Client-side routing implemented with Wouter, a lightweight alternative to React Router. Routes include home, browse, speech detail, and speaker profile pages.
 
 **State Management**: TanStack Query (React Query) for server state management, data fetching, and caching. No global client state management library is used; component state is managed locally with React hooks.
 
@@ -39,11 +39,10 @@ Preferred communication style: Simple, everyday language.
 - Speakers CRUD operations
 - Categories management
 - Speeches with filtering capabilities (by category, speaker, type, search)
-- PayPal payment integration endpoints
-- Subscription management
+- User authentication endpoints (Replit Auth)
 
 **Middleware**: 
-- Express JSON body parser with raw body capture for PayPal webhook verification
+- Express JSON body parser for API requests
 - Request logging middleware with duration tracking
 - Vite development server integration in development mode
 
@@ -58,9 +57,8 @@ Preferred communication style: Simple, everyday language.
 **Schema Design**:
 - **Speakers**: Historical figures with biographical data (name, bio, birth/death years, period, location, image)
 - **Categories**: Topic categorization (e.g., "Wartime Addresses", "Civil Rights")
-- **Speeches**: Main content table with foreign keys to speakers and categories, includes type (speech/letter), transcript, audio URL, premium status, and pricing
-- **Users**: User authentication and profile data
-- **Subscriptions**: Subscription plans and user subscription tracking
+- **Speeches**: Main content table with foreign keys to speakers and categories, includes type (speech/letter), transcript, audio URL, historical context, and metadata
+- **Users**: User authentication and profile data (via Replit Auth)
 
 **Migration Strategy**: Drizzle Kit for schema migrations with output to `/migrations` directory.
 
@@ -68,15 +66,9 @@ Preferred communication style: Simple, everyday language.
 
 ### Authentication & Authorization
 
-User authentication system with session-based approach (indicated by user CRUD operations and subscription tracking). Premium content access controlled via `isPremium` flag on speeches and user subscription status.
+User authentication system using Replit Auth with session-based approach. All content is freely accessible without authentication. User accounts enable potential future features like favorites, playlists, and personalized recommendations.
 
 ### External Dependencies
-
-**Payment Processing**: 
-- PayPal Server SDK for subscription and one-time payment processing
-- Critical PayPal integration code marked immutable (must not be modified)
-- Environment-based configuration (sandbox vs production)
-- Endpoints: `/paypal/setup`, `/paypal/order`, `/paypal/order/:orderID/capture` with shortened aliases
 
 **Third-Party Services**:
 - Neon serverless PostgreSQL database
@@ -97,12 +89,12 @@ User authentication system with session-based approach (indicated by user CRUD o
 
 1. **Monorepo Structure**: Shared schema types between client and server via `shared/` directory for type safety across the stack.
 
-2. **Premium Content Model**: Hybrid monetization with both subscription-based access and per-speech purchasing options.
+2. **Free Access Model**: All historical content is completely free and accessible to everyone. No payment gates, premium content, or subscriptions required.
 
-3. **Immutable PayPal Integration**: Critical payment processing code protected against modifications to prevent integration failures.
+3. **Responsive Design First**: Mobile-responsive layouts with breakpoint-aware components and mobile menu implementation.
 
-4. **Responsive Design First**: Mobile-responsive layouts with breakpoint-aware components and mobile menu implementation.
+4. **SEO & Accessibility**: Semantic HTML, ARIA labels, and meta descriptions for content discoverability.
 
-5. **SEO & Accessibility**: Semantic HTML, ARIA labels, and meta descriptions for content discoverability.
+5. **Type Safety**: End-to-end TypeScript with Zod schema validation for runtime type checking on database operations.
 
-6. **Type Safety**: End-to-end TypeScript with Zod schema validation for runtime type checking on database operations.
+6. **Premium UI/UX**: Despite being free, the platform maintains a premium, sophisticated user experience inspired by MasterClass and Audible.
