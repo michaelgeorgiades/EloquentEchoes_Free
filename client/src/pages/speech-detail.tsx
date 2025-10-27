@@ -49,6 +49,25 @@ export default function SpeechDetail() {
     enabled: !!speechId,
   });
 
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const handleTimeUpdate = () => setCurrentTime(audio.currentTime);
+    const handleDurationChange = () => setDuration(audio.duration);
+    const handleEnded = () => setIsPlaying(false);
+
+    audio.addEventListener('timeupdate', handleTimeUpdate);
+    audio.addEventListener('durationchange', handleDurationChange);
+    audio.addEventListener('ended', handleEnded);
+
+    return () => {
+      audio.removeEventListener('timeupdate', handleTimeUpdate);
+      audio.removeEventListener('durationchange', handleDurationChange);
+      audio.removeEventListener('ended', handleEnded);
+    };
+  }, [speech]);
+
   if (isLoading) {
     return (
       <div className="min-h-screen py-12 px-6">
@@ -85,25 +104,6 @@ export default function SpeechDetail() {
     }
     setIsPlaying(!isPlaying);
   };
-
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    const handleTimeUpdate = () => setCurrentTime(audio.currentTime);
-    const handleDurationChange = () => setDuration(audio.duration);
-    const handleEnded = () => setIsPlaying(false);
-
-    audio.addEventListener('timeupdate', handleTimeUpdate);
-    audio.addEventListener('durationchange', handleDurationChange);
-    audio.addEventListener('ended', handleEnded);
-
-    return () => {
-      audio.removeEventListener('timeupdate', handleTimeUpdate);
-      audio.removeEventListener('durationchange', handleDurationChange);
-      audio.removeEventListener('ended', handleEnded);
-    };
-  }, []);
 
   const formatTime = (time: number) => {
     const minutes = Math.floor(time / 60);
