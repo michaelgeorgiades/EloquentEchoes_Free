@@ -135,20 +135,6 @@ export async function seedDatabase() {
   // Insert speeches
   await db.insert(speeches).values([
     {
-      title: "Gettysburg Address",
-      speakerId: speakerData[0].id,
-      categoryId: categoryData[0].id,
-      type: "speech",
-      date: "November 19, 1863",
-      location: "Gettysburg, Pennsylvania",
-      context: "Delivered during the American Civil War at the dedication of the Soldiers' National Cemetery",
-      transcript: "Four score and seven years ago our fathers brought forth on this continent, a new nation, conceived in Liberty, and dedicated to the proposition that all men are created equal...",
-      audioUrl: "/api/placeholder-audio/gettysburg",
-      duration: 180,
-      excerpt: "Four score and seven years ago our fathers brought forth on this continent, a new nation...",
-      imageUrl: "/api/placeholder-speech/gettysburg"
-    },
-    {
       title: "We Shall Fight on the Beaches",
       speakerId: speakerData[1].id,
       categoryId: categoryData[1].id,

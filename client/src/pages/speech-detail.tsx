@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import type { SpeechWithDetails } from "@shared/schema";
 import lincolnImg from "@assets/generated_images/Abraham_Lincoln_portrait_a94bebb5.png";
 import churchillImg from "@assets/generated_images/Winston_Churchill_portrait_11b08254.png";
@@ -39,6 +39,9 @@ const speakerImages: Record<string, string> = {
 export default function SpeechDetail() {
   const [, params] = useRoute("/speech/:id");
   const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const audioRef = useRef<HTMLAudioElement>(null);
   const speechId = params?.id;
 
   const { data: speech, isLoading } = useQuery<SpeechWithDetails>({
@@ -71,6 +74,44 @@ export default function SpeechDetail() {
 
   const speakerImageKey = speech.speaker.imageUrl.split('/').pop() || '';
   const speakerImage = speakerImages[speakerImageKey];
+
+  const togglePlayPause = () => {
+    if (!audioRef.current) return;
+    
+    if (isPlaying) {
+      audioRef.current.pause();
+    } else {
+      audioRef.current.play();
+    }
+    setIsPlaying(!isPlaying);
+  };
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const handleTimeUpdate = () => setCurrentTime(audio.currentTime);
+    const handleDurationChange = () => setDuration(audio.duration);
+    const handleEnded = () => setIsPlaying(false);
+
+    audio.addEventListener('timeupdate', handleTimeUpdate);
+    audio.addEventListener('durationchange', handleDurationChange);
+    audio.addEventListener('ended', handleEnded);
+
+    return () => {
+      audio.removeEventListener('timeupdate', handleTimeUpdate);
+      audio.removeEventListener('durationchange', handleDurationChange);
+      audio.removeEventListener('ended', handleEnded);
+    };
+  }, []);
+
+  const formatTime = (time: number) => {
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  };
+
+  const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (
     <div className="min-h-screen pb-24">
@@ -135,26 +176,38 @@ export default function SpeechDetail() {
 
       {/* Audio Player */}
       {speech.audioUrl && (
-        <div className="sticky top-0 z-40 bg-primary text-primary-foreground py-4 px-6 shadow-lg">
-          <div className="max-w-4xl mx-auto flex items-center gap-4">
-            <Button
-              size="icon"
-              variant="secondary"
-              onClick={() => setIsPlaying(!isPlaying)}
-              data-testid="button-play-pause"
-            >
-              {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
-            </Button>
-            <div className="flex-1">
-              <div className="h-2 bg-primary-foreground/20 rounded-full overflow-hidden">
-                <div className="h-full bg-primary-foreground w-1/3 rounded-full"></div>
+        <>
+          <audio ref={audioRef} src={speech.audioUrl} preload="metadata" />
+          <div className="sticky top-0 z-40 bg-primary text-primary-foreground py-4 px-6 shadow-lg">
+            <div className="max-w-4xl mx-auto flex items-center gap-4">
+              <Button
+                size="icon"
+                variant="secondary"
+                onClick={togglePlayPause}
+                data-testid="button-play-pause"
+              >
+                {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
+              </Button>
+              <div className="flex-1">
+                <div className="h-2 bg-primary-foreground/20 rounded-full overflow-hidden cursor-pointer"
+                     onClick={(e) => {
+                       if (!audioRef.current) return;
+                       const rect = e.currentTarget.getBoundingClientRect();
+                       const percent = (e.clientX - rect.left) / rect.width;
+                       audioRef.current.currentTime = percent * duration;
+                     }}>
+                  <div 
+                    className="h-full bg-primary-foreground rounded-full transition-all"
+                    style={{ width: `${progress}%` }}
+                  ></div>
+                </div>
               </div>
+              <span className="font-sans text-sm">
+                {formatTime(currentTime)} / {formatTime(duration || speech.duration || 0)}
+              </span>
             </div>
-            <span className="font-sans text-sm">
-              {speech.duration ? `${Math.floor(speech.duration / 60)}:00` : '0:00'}
-            </span>
           </div>
-        </div>
+        </>
       )}
 
       {/* Content */}
