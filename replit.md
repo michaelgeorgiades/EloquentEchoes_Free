@@ -73,8 +73,15 @@ User authentication system using Replit Auth with session-based approach. All co
 **Third-Party Services**:
 - Neon serverless PostgreSQL database
 - Google Fonts (Playfair Display, Crimson Text, Source Sans Pro)
-- Audio hosting for speech playback (URLs stored in database)
+- **Internet Archive (archive.org)** - Public domain audio recordings for historical speeches (MP3 format)
 - Image hosting for speaker portraits and speech imagery
+
+**Audio Content Sources**:
+All speech audio files are sourced from public domain recordings on Internet Archive:
+- Gettysburg Address: Modern dramatic reading by Britton Rea (public domain)
+- Churchill's "We Shall Fight on the Beaches": 1949 re-recording by Churchill himself
+- MLK's "I Have a Dream": Original 1963 recording from March on Washington
+- JFK's Inaugural Address: Original 1961 recording from presidential inauguration
 
 **Font Loading**: Preconnected to Google Fonts with specific font families loaded via CDN.
 
