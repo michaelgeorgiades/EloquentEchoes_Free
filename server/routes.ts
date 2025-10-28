@@ -3,8 +3,13 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage-db";
 import { seedDatabase } from "./seed";
 import { setupAuth, isAuthenticated } from "./replitAuth";
+import path from "path";
+import express from "express";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Serve static audio files
+  app.use('/audio', express.static(path.join(process.cwd(), 'attached_assets', 'audio')));
+
   // Setup authentication
   await setupAuth(app);
 

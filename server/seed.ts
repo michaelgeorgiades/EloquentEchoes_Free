@@ -121,6 +121,20 @@ export async function seedDatabase() {
       imageUrl: "/api/placeholder-speech/dream"
     },
     {
+      title: "Speech to the Troops at Tilbury",
+      speakerId: speakerData[3].id,
+      categoryId: categoryData[1].id,
+      type: "speech",
+      date: "August 9, 1588",
+      location: "Tilbury, England",
+      context: "Delivered to English troops preparing to repel the Spanish Armada",
+      transcript: "My loving people, we have been persuaded by some that are careful of our safety, to take heed how we commit ourselves to armed multitudes, for fear of treachery; but I assure you I do not desire to live to distrust my faithful and loving people. Let tyrants fear. I have always so behaved myself that, under God, I have placed my chiefest strength and safeguard in the loyal hearts and good-will of my subjects; and therefore I am come amongst you, as you see, at this time, not for my recreation and disport, but being resolved, in the midst and heat of the battle, to live and die amongst you all; to lay down for my God, and for my kingdom, and my people, my honour and my blood, even in the dust. I know I have the body of a weak, feeble woman; but I have the heart and stomach of a king, and of a king of England too, and think foul scorn that Parma or Spain, or any prince of Europe, should dare to invade the borders of my realm; to which rather than any dishonour shall grow by me, I myself will take up arms, I myself will be your general, judge, and rewarder of every one of your virtues in the field.",
+      audioUrl: "/audio/tilbury-speech.mp3",
+      duration: 89,
+      excerpt: "I know I have the body of a weak, feeble woman; but I have the heart and stomach of a king...",
+      imageUrl: "/api/placeholder-speech/tilbury"
+    },
+    {
       title: "Ask Not What Your Country Can Do For You",
       speakerId: speakerData[5].id,
       categoryId: categoryData[2].id,
